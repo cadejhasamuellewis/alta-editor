@@ -353,8 +353,11 @@
     async function loadPDF(file) {
       if (!file) return;
       try {
-        App.pdfBytes = await file.arrayBuffer();
-        App.pdfDoc = await pdfjsLib.getDocument({ data: App.pdfBytes }).promise;
+        // FIX: Clone the buffer so both libraries get a fresh copy
+        const rawBuffer = await file.arrayBuffer();
+        App.pdfBytes = rawBuffer.slice(0); // Clone for PDF-Lib
+        
+        App.pdfDoc = await pdfjsLib.getDocument({ data: rawBuffer }).promise;
         App.pdfLibDoc = await PDFLib.PDFDocument.load(App.pdfBytes);
         
         // Reset State
@@ -370,6 +373,7 @@
         saveHistory(); // Initial state
       } catch (err) {
         alert("Upload Error: " + err.message);
+        console.error(err);
       }
     }
 
