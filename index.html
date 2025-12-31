@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alta Pro - Bank Grade Editor</title>
+  <title>Alta Pro - Debug Mode</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,228 +15,48 @@
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
   <style>
-    /* --- CSS VARIABLES & THEME --- */
-    :root {
-      --bg-app: #f1f5f9;       /* Light Grey App Background */
-      --bg-panel: #ffffff;     /* White Toolbar */
-      --accent: #cceeff;       /* YOUR COLOR: Light Blue */
-      --accent-dark: #99d1f2;  /* Slightly darker blue for borders */
-      --accent-active: #0066cc;/* Adobe Blue for active text/icons */
-      --text: #334155;
-      --border: #cbd5e1;
-    }
-
-    * { box-sizing: border-box; user-select: none; }
+    /* BASIC STYLING TO ENSURE VISIBILITY */
+    body { margin: 0; font-family: 'Inter', sans-serif; background: #f1f5f9; height: 100vh; display: flex; flex-direction: column; }
+    .ribbon { background: white; height: 100px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #ccc; gap: 10px; }
+    .btn-large { height: 80px; padding: 0 15px; border: 1px solid transparent; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; font-size: 12px; font-weight: 600; border-radius: 6px; }
+    .btn-large:hover { background: #f0f9ff; color: #0066cc; }
+    .btn-large i { font-size: 24px; margin-bottom: 5px; }
+    .btn-large.active { background: #e0f2fe; color: #0066cc; border: 1px solid #bae6fd; }
     
-    body {
-      margin: 0; font-family: 'Inter', sans-serif;
-      background: var(--bg-app); color: var(--text);
-      height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-    }
-
-    /* --- RIBBON TOOLBAR STYLING --- */
-    .ribbon {
-      background: var(--bg-panel); 
-      border-bottom: 1px solid var(--border);
-      height: 100px; /* Tall ribbon style like PDF Gear */
-      display: flex; 
-      align-items: stretch; 
-      padding: 0 12px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      z-index: 50;
-      gap: 4px;
-    }
-
-    .brand-section {
-      display: flex; flex-direction: column; justify-content: center;
-      padding-right: 16px; margin-right: 8px;
-      border-right: 1px solid var(--border);
-      color: #0f172a; font-weight: 800; font-size: 18px; letter-spacing: -0.5px;
-    }
-
-    /* Tool Groups (File, Edit, etc) */
-    .tool-group {
-      display: flex; align-items: center; gap: 4px; padding: 6px 4px;
-      position: relative;
-    }
-    .tool-group::after {
-      content: ''; position: absolute; right: 0; top: 15px; bottom: 15px;
-      width: 1px; background: var(--border);
-    }
-    .tool-group:last-child::after { display: none; }
-
-    /* Big Buttons (Open, Save, Text, etc) */
-    .btn-large {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      height: 100%; min-width: 55px; padding: 0 8px;
-      background: transparent; border: 1px solid transparent; border-radius: 6px;
-      color: #64748b; cursor: pointer; transition: all 0.1s;
-      gap: 6px;
-    }
-    .btn-large i { font-size: 20px; margin-bottom: 2px; }
-    .btn-large span { font-size: 11px; font-weight: 600; }
-    
-    .btn-large:hover { background: #f8fafc; color: var(--accent-active); }
-    .btn-large.active { 
-      background: var(--accent); 
-      border-color: var(--accent-dark); 
-      color: var(--accent-active); 
-    }
-    .btn-large:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* Mini Action Column (Undo/Redo, Align) */
-    .action-col {
-      display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 100%;
-    }
-    .action-row { display: flex; gap: 2px; }
-
-    .btn-icon {
-      width: 28px; height: 28px;
-      border: 1px solid transparent; background: transparent; border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: #475569;
-    }
-    .btn-icon:hover { background: #f1f5f9; border-color: var(--border); }
-    .btn-icon.active { background: var(--accent); border-color: var(--accent-dark); color: var(--accent-active); }
-    .btn-icon i { font-size: 13px; }
-
-    /* Inputs */
-    select, input[type=number] {
-      height: 28px; border: 1px solid var(--border); border-radius: 4px;
-      font-size: 12px; padding-left: 6px; color: #334155;
-    }
-    select { width: 130px; }
-    input[type=number] { width: 50px; }
-    input[type=color] {
-      width: 28px; height: 28px; padding: 0; border: none; cursor: pointer;
-    }
-
-    /* --- CANVAS WORKSPACE --- */
-    #workspace {
-      flex: 1;
-      background: #475569; /* Dark Grey like Adobe/PDFGear */
-      overflow: auto;
-      display: flex; justify-content: center;
-      padding: 40px;
-      position: relative;
-    }
-
-    #canvas-container {
-      position: relative;
-      background: white;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-      /* Size set by JS */
-    }
-
+    #workspace { flex: 1; background: #475569; overflow: auto; display: flex; justify-content: center; padding: 40px; }
+    #canvas-container { position: relative; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
     canvas { position: absolute; top: 0; left: 0; }
-    #pdf-layer { z-index: 1; }
-    #ui-layer { z-index: 10; cursor: crosshair; }
-
-    /* EDITING TEXTAREA (Adobe Logic) */
-    #inline-editor {
-      position: absolute; z-index: 100;
-      background: transparent;
-      padding: 0; margin: 0;
-      border: 1px dashed #0066cc; 
-      outline: none;
-      resize: none; 
-      overflow: hidden; 
-      white-space: pre;
-      line-height: 1.15;
-      display: none; 
-      transform-origin: top left;
-    }
-
-    /* DRAG & DROP OVERLAY */
-    #upload-overlay {
-      position: fixed; inset: 0; z-index: 999;
-      background: rgba(255,255,255,0.95);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 16px;
-    }
-    #upload-overlay.hidden { display: none; }
+    #ui-layer { z-index: 10; }
     
-    .big-upload-btn {
-      padding: 16px 32px; font-size: 16px; font-weight: 700;
-      color: var(--accent-active); background: var(--accent);
-      border: 2px solid var(--accent-dark); border-radius: 8px;
-      cursor: pointer; transition: transform 0.1s;
-    }
-    .big-upload-btn:hover { transform: scale(1.02); }
-
+    #upload-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; }
+    #upload-overlay.hidden { display: none; }
+    .big-btn { padding: 15px 30px; font-size: 18px; background: #0066cc; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    
+    #inline-editor { position: absolute; z-index: 100; background: transparent; border: 1px dashed #0066cc; outline: none; padding: 0; margin: 0; resize: none; overflow: hidden; display: none; line-height: 1.15; transform-origin: top left; }
   </style>
 </head>
 <body>
 
   <div class="ribbon">
-    <div class="brand-section">
-      <i class="fa-solid fa-layer-group" style="color:var(--accent-active); margin-bottom:4px;"></i>
-      ALTA
+    <h2 style="margin-right:20px; color:#0f172a;">ALTA</h2>
+    <button class="btn-large" id="btn-open"><i class="fa-regular fa-folder-open"></i>Open</button>
+    <button class="btn-large" id="btn-save" disabled><i class="fa-regular fa-floppy-disk"></i>Save</button>
+    <div style="width:1px; height:60px; background:#ddd; margin:0 10px;"></div>
+    <button class="btn-large active" data-tool="select" id="tool-select"><i class="fa-solid fa-arrow-pointer"></i>Select</button>
+    <button class="btn-large" data-tool="text" id="tool-text"><i class="fa-solid fa-font"></i>Text</button>
+    <button class="btn-large" data-tool="whiteout"><i class="fa-solid fa-eraser"></i>Erase</button>
+    
+    <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+      <select id="font-family" style="height:30px;"><option value="BankCourier">Bank Courier</option><option value="Helvetica">Helvetica</option></select>
+      <input type="number" id="font-size" value="12" style="width:50px; height:30px;">
+      <button class="btn-large" id="btn-bold" style="height:40px; width:40px;"><i class="fa-solid fa-bold" style="font-size:14px; margin:0;"></i></button>
     </div>
+  </div>
 
-    <div class="tool-group">
-      <button class="btn-large" id="btn-open">
-        <i class="fa-regular fa-folder-open"></i><span>Open</span>
-      </button>
-      <button class="btn-large" id="btn-save" disabled>
-        <i class="fa-regular fa-floppy-disk"></i><span>Save</span>
-      </button>
-    </div>
-
-    <div class="tool-group">
-      <div class="action-col">
-        <div class="action-row">
-          <button class="btn-icon" id="btn-undo" title="Undo"><i class="fa-solid fa-rotate-left"></i></button>
-          <button class="btn-icon" id="btn-redo" title="Redo"><i class="fa-solid fa-rotate-right"></i></button>
-        </div>
-        <div class="action-row">
-          <button class="btn-icon" id="btn-delete" title="Delete"><i class="fa-solid fa-trash" style="color:#ef4444;"></i></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tool-group">
-      <button class="btn-large active" data-tool="select" id="tool-select">
-        <i class="fa-solid fa-arrow-pointer"></i><span>Select</span>
-      </button>
-      <button class="btn-large" data-tool="text" id="tool-text">
-        <i class="fa-solid fa-font"></i><span>Text</span>
-      </button>
-      <button class="btn-large" data-tool="whiteout">
-        <i class="fa-solid fa-eraser"></i><span>Erase</span>
-      </button>
-      <button class="btn-large" data-tool="image" id="tool-img-trigger">
-        <i class="fa-regular fa-image"></i><span>Image</span>
-      </button>
-    </div>
-
-    <div class="tool-group">
-      <div class="action-col">
-        <div class="action-row">
-          <select id="font-family">
-            <option value="BankCourier">Bank Courier</option>
-            <option value="Helvetica">Helvetica</option>
-            <option value="Times">Times Roman</option>
-          </select>
-          <input type="number" id="font-size" value="12" min="6" max="96">
-        </div>
-        <div class="action-row">
-          <button class="btn-icon" id="btn-bold" title="Bold / Darken"><i class="fa-solid fa-bold"></i></button>
-          <input type="color" id="font-color" value="#000000">
-          
-          <div style="width:1px; background:#ddd; margin:0 4px;"></div>
-          <button class="btn-icon" id="align-left" title="Align Left"><i class="fa-solid fa-align-left"></i></button>
-          <button class="btn-icon" id="align-center" title="Align Center"><i class="fa-solid fa-align-center"></i></button>
-          <button class="btn-icon" id="align-right" title="Align Right"><i class="fa-solid fa-align-right"></i></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tool-group" style="margin-left:auto; border:none;">
-      <button class="btn-icon" id="zoom-out"><i class="fa-solid fa-minus"></i></button>
-      <div style="font-size:12px; font-weight:600; width:45px; text-align:center;" id="zoom-level">100%</div>
-      <button class="btn-icon" id="zoom-in"><i class="fa-solid fa-plus"></i></button>
-    </div>
+  <div id="upload-overlay">
+    <h1>Bank Grade Editor</h1>
+    <button class="big-btn" onclick="document.getElementById('file-input').click()">Select PDF File</button>
+    <p style="margin-top:20px; color:#666;">v3.0 - Debug Mode</p>
   </div>
 
   <div id="workspace">
@@ -247,210 +67,331 @@
     </div>
   </div>
 
-  <div id="upload-overlay">
-    <i class="fa-solid fa-cloud-arrow-up fa-5x" style="color:var(--accent-dark);"></i>
-    <h1 style="color:#0f172a;">Load your Document</h1>
-    <button class="big-upload-btn" onclick="document.getElementById('file-input').click()">
-      Browse PDF Files
-    </button>
-    <p style="color:#64748b; font-size:14px;">Secure Processing • Bank Grade Logic</p>
-  </div>
-
   <input type="file" id="file-input" accept="application/pdf" style="display:none" />
-  <input type="file" id="img-input" accept="image/png, image/jpeg" style="display:none" />
 
-  <script>
-    // --- SETUP WORKER ---
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+<script>
+  // WORKER SETUP
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // --- STATE ---
-    const App = {
-      pdfDoc: null,
-      pdfLibDoc: null,
-      pdfBytes: null,
-      pageNum: 1,
-      scale: 1.25,
-      tool: 'select',
-      objects: [],     // All text/images/whiteouts
-      selectedId: null,
-      isEditing: false,
-      history: [],     // For Undo/Redo
-      historyStep: -1
-    };
+  const App = {
+    pdfBytes: null, pdfDoc: null, pdfLibDoc: null,
+    scale: 1.25, pageNum: 1, tool: 'select',
+    objects: [], selectedId: null, isEditing: false
+  };
 
-    // --- DOM REFERENCES ---
-    const canvasContainer = document.getElementById('canvas-container');
-    const pdfCanvas = document.getElementById('pdf-layer');
-    const uiCanvas = document.getElementById('ui-layer');
-    const pdfCtx = pdfCanvas.getContext('2d');
-    const uiCtx = uiCanvas.getContext('2d');
-    const editor = document.getElementById('inline-editor');
+  const uiCanvas = document.getElementById('ui-layer');
+  const pdfCanvas = document.getElementById('pdf-layer');
+  const uiCtx = uiCanvas.getContext('2d');
+  const pdfCtx = pdfCanvas.getContext('2d');
+  const editor = document.getElementById('inline-editor');
 
-    // Controls
-    const fontSel = document.getElementById('font-family');
-    const sizeInp = document.getElementById('font-size');
-    const colorInp = document.getElementById('font-color');
-    const boldBtn = document.getElementById('btn-bold');
-
-    // --- INITIALIZATION ---
-    window.addEventListener('DOMContentLoaded', () => {
-      // 1. File Upload Handlers
-      document.getElementById('file-input').addEventListener('change', (e) => loadPDF(e.target.files[0]));
-      document.getElementById('btn-open').addEventListener('click', () => document.getElementById('file-input').click());
-      document.getElementById('btn-save').addEventListener('click', savePDF);
-
-      // 2. Toolbar Tools
-      document.querySelectorAll('[data-tool]').forEach(btn => {
-        btn.addEventListener('click', () => setTool(btn.dataset.tool));
-      });
-      // Image Tool Specific
-      document.getElementById('tool-img-trigger').addEventListener('click', () => {
-        setTool('image');
-        document.getElementById('img-input').click();
-      });
-      document.getElementById('img-input').addEventListener('change', (e) => loadImage(e.target.files[0]));
-
-      // 3. Formatting
-      [fontSel, sizeInp, colorInp].forEach(el => el.addEventListener('input', updateSelectedProp));
-      boldBtn.addEventListener('click', () => {
-        boldBtn.classList.toggle('active');
-        updateSelectedProp();
-      });
-      // Alignments
-      ['left','center','right'].forEach(align => {
-        document.getElementById('align-'+align).addEventListener('click', () => {
-          if(App.selectedId) {
-            const obj = App.objects.find(o => o.id === App.selectedId);
-            if(obj && obj.type === 'text') {
-              obj.align = align;
-              saveHistory(); renderUI();
-            }
-          }
-        });
-      });
-
-      // 4. Undo/Redo
-      document.getElementById('btn-undo').addEventListener('click', performUndo);
-      document.getElementById('btn-redo').addEventListener('click', performRedo);
-      document.getElementById('btn-delete').addEventListener('click', deleteSelected);
-
-      // 5. Canvas Interactions
-      uiCanvas.addEventListener('mousedown', onMouseDown);
-      uiCanvas.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-      uiCanvas.addEventListener('dblclick', onDoubleClick);
-
-      // 6. Editor Input
-      editor.addEventListener('blur', commitEditorChanges);
-      
-      // 7. Zoom
-      document.getElementById('zoom-in').onclick = () => { App.scale += 0.1; renderPDF(); };
-      document.getElementById('zoom-out').onclick = () => { App.scale = Math.max(0.5, App.scale - 0.1); renderPDF(); };
+  // --- STARTUP ---
+  window.onload = () => {
+    console.log("App Started");
+    
+    // Wire up buttons
+    document.getElementById('file-input').addEventListener('change', (e) => loadPDF(e.target.files[0]));
+    document.getElementById('btn-open').addEventListener('click', () => document.getElementById('file-input').click());
+    document.getElementById('btn-save').addEventListener('click', savePDF);
+    
+    // Tools
+    ['select','text','whiteout'].forEach(t => {
+      const btn = document.querySelector(`[data-tool="${t}"]`);
+      if(btn) btn.onclick = () => setTool(t);
     });
 
-    // --- CORE LOGIC ---
+    // Formatting
+    document.getElementById('font-family').onchange = updateProp;
+    document.getElementById('font-size').onchange = updateProp;
+    document.getElementById('btn-bold').onclick = () => {
+      document.getElementById('btn-bold').classList.toggle('active');
+      updateProp();
+    };
 
-    async function loadPDF(file) {
-      if (!file) return;
-      try {
-        // FIX: Clone the buffer so both libraries get a fresh copy
-        const rawBuffer = await file.arrayBuffer();
-        App.pdfBytes = rawBuffer.slice(0); // Clone for PDF-Lib
+    // Canvas Events
+    uiCanvas.onmousedown = onMouseDown;
+    uiCanvas.onmousemove = onMouseMove;
+    uiCanvas.onmouseup = onMouseUp;
+    uiCanvas.ondblclick = onDoubleClick;
+    editor.onblur = commitEdit;
+  };
+
+  // --- CORE LOAD FUNCTION (WITH ALERTS) ---
+  async function loadPDF(file) {
+    if(!file) return;
+    
+    // STEP 1
+    // alert("Step 1: Reading File..."); // Uncomment if needed
+    
+    try {
+      const rawBuffer = await file.arrayBuffer();
+      
+      // STEP 2: CLONE
+      App.pdfBytes = rawBuffer.slice(0); 
+      
+      // STEP 3: VIEWER
+      App.pdfDoc = await pdfjsLib.getDocument({data: rawBuffer}).promise;
+      
+      // STEP 4: EDITOR
+      App.pdfLibDoc = await PDFLib.PDFDocument.load(App.pdfBytes);
+      
+      // STEP 5: SUCCESS
+      // alert("Success! Rendering now...");
+      
+      document.getElementById('upload-overlay').classList.add('hidden');
+      document.getElementById('btn-save').disabled = false;
+      App.objects = [];
+      renderPage();
+      
+    } catch(e) {
+      alert("ERROR: " + e.message);
+      console.error(e);
+    }
+  }
+
+  async function renderPage() {
+    const page = await App.pdfDoc.getPage(App.pageNum);
+    const viewport = page.getViewport({scale: App.scale});
+    
+    const container = document.getElementById('canvas-container');
+    container.style.width = viewport.width + "px";
+    container.style.height = viewport.height + "px";
+    
+    pdfCanvas.width = viewport.width; pdfCanvas.height = viewport.height;
+    uiCanvas.width = viewport.width; uiCanvas.height = viewport.height;
+    
+    await page.render({canvasContext: pdfCtx, viewport}).promise;
+    renderUI();
+  }
+
+  function renderUI() {
+    uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+    
+    App.objects.forEach(o => {
+      if(App.isEditing && App.selectedId === o.id) return; // Hide if editing
+      
+      const x=o.x*App.scale, y=o.y*App.scale, w=o.w*App.scale, h=o.h*App.scale;
+      
+      if(o.type === 'whiteout') {
+        uiCtx.fillStyle = '#ffffff';
+        uiCtx.fillRect(x,y,w,h);
+      } else if(o.type === 'text') {
+        uiCtx.save();
+        let font = 'Helvetica';
+        if(o.font === 'BankCourier') font = '"Courier Prime", monospace';
+        if(o.font === 'Times') font = '"Times New Roman", serif';
         
-        App.pdfDoc = await pdfjsLib.getDocument({ data: rawBuffer }).promise;
-        App.pdfLibDoc = await PDFLib.PDFDocument.load(App.pdfBytes);
-        
-        // Reset State
-        App.objects = [];
-        App.history = [];
-        App.historyStep = -1;
-        App.selectedId = null;
-        
-        document.getElementById('upload-overlay').classList.add('hidden');
-        document.getElementById('btn-save').disabled = false;
-        
-        renderPDF();
-        saveHistory(); // Initial state
-      } catch (err) {
-        alert("Upload Error: " + err.message);
-        console.error(err);
+        uiCtx.font = `${o.bold?'bold ':''}${o.size*App.scale}px ${font}`;
+        uiCtx.fillStyle = '#000';
+        uiCtx.textBaseline = 'top';
+        uiCtx.fillText(o.text, x, y);
+        uiCtx.restore();
+      }
+    });
+    
+    // Selection Box
+    if(App.selectedId && !App.isEditing) {
+      const o = App.objects.find(i => i.id === App.selectedId);
+      if(o) {
+        const x=o.x*App.scale, y=o.y*App.scale, w=o.w*App.scale, h=o.h*App.scale;
+        uiCtx.strokeStyle = '#0066cc'; uiCtx.lineWidth = 2;
+        uiCtx.strokeRect(x,y,w,h);
       }
     }
+  }
 
-    async function renderPDF() {
-      if (!App.pdfDoc) return;
-      const page = await App.pdfDoc.getPage(App.pageNum);
-      const viewport = page.getViewport({ scale: App.scale });
+  // --- INTERACTION ---
+  let dragStart = null;
 
-      // Resize
-      canvasContainer.style.width = viewport.width + 'px';
-      canvasContainer.style.height = viewport.height + 'px';
-      [pdfCanvas, uiCanvas].forEach(c => { c.width = viewport.width; c.height = viewport.height; });
+  function getPos(e) {
+    const r = uiCanvas.getBoundingClientRect();
+    return { x: (e.clientX - r.left)/App.scale, y: (e.clientY - r.top)/App.scale };
+  }
 
-      // Render
-      await page.render({ canvasContext: pdfCtx, viewport }).promise;
+  function onMouseDown(e) {
+    const {x,y} = getPos(e);
+    if(App.tool === 'select') {
+      const hit = App.objects.slice().reverse().find(o => x>=o.x && x<=o.x+o.w && y>=o.y && y<=o.y+o.h);
+      App.selectedId = hit ? hit.id : null;
+      if(hit) {
+        dragStart = {x,y, ox:hit.x, oy:hit.y};
+        syncProps(hit);
+      }
+    } else if(App.tool === 'text') {
+      addSmartText(x,y);
+    } else if(App.tool === 'whiteout') {
+      dragStart = {x,y, isNew:true};
+    }
+    renderUI();
+  }
+
+  function onMouseMove(e) {
+    const {x,y} = getPos(e);
+    if(!dragStart) return;
+    
+    if(App.tool === 'select' && App.selectedId) {
+      const o = App.objects.find(i => i.id === App.selectedId);
+      o.x = dragStart.ox + (x - dragStart.x);
+      o.y = dragStart.oy + (y - dragStart.y);
+      if(o.maskId) {
+        const m = App.objects.find(i => i.id === o.maskId);
+        if(m) { m.x = o.x; m.y = o.y; }
+      }
+    }
+    renderUI();
+  }
+
+  function onMouseUp(e) {
+    const {x,y} = getPos(e);
+    if(App.tool === 'whiteout' && dragStart && dragStart.isNew) {
+      const w = Math.abs(x - dragStart.x);
+      const h = Math.abs(y - dragStart.y);
+      if(w>5 && h>5) {
+        App.objects.push({ id:Date.now(), type:'whiteout', x:Math.min(x,dragStart.x), y:Math.min(y,dragStart.y), w, h });
+      }
+    }
+    dragStart = null;
+    renderUI();
+  }
+
+  function onDoubleClick(e) {
+    const {x,y} = getPos(e);
+    const hit = App.objects.find(o => o.type==='text' && x>=o.x && x<=o.x+o.w && y>=o.y && y<=o.y+o.h);
+    if(hit) {
+      App.selectedId = hit.id;
+      startEdit(hit);
+    }
+  }
+
+  // --- SMART TEXT LOGIC ---
+  function addSmartText(x, y) {
+    const id = Date.now();
+    const maskId = id + 1;
+    // 1. Mask
+    App.objects.push({ id:maskId, type:'whiteout', x, y, w:120, h:24 });
+    // 2. Text
+    const txt = {
+      id, type:'text', text:'', x, y, w:120, h:24, maskId,
+      font: document.getElementById('font-family').value,
+      size: parseInt(document.getElementById('font-size').value),
+      bold: document.getElementById('btn-bold').classList.contains('active')
+    };
+    App.objects.push(txt);
+    App.selectedId = id;
+    setTool('select');
+    startEdit(txt);
+  }
+
+  function startEdit(o) {
+    App.isEditing = true;
+    editor.style.display = 'block';
+    editor.style.left = (o.x*App.scale) + 'px';
+    editor.style.top = (o.y*App.scale) + 'px';
+    editor.style.width = (o.w*App.scale) + 'px';
+    editor.style.height = (o.h*App.scale*1.2) + 'px'; // extra height
+    
+    let font = 'Helvetica';
+    if(o.font === 'BankCourier') font = '"Courier Prime", monospace';
+    if(o.font === 'Times') font = '"Times New Roman", serif';
+    
+    editor.style.fontFamily = font;
+    editor.style.fontSize = (o.size*App.scale) + 'px';
+    editor.style.fontWeight = o.bold ? 'bold' : 'normal';
+    
+    editor.value = o.text;
+    editor.focus();
+    renderUI();
+  }
+
+  function commitEdit() {
+    if(!App.isEditing) return;
+    const o = App.objects.find(i => i.id === App.selectedId);
+    if(o) {
+      o.text = editor.value;
+      // Auto-resize mask
+      const ctx = document.createElement('canvas').getContext('2d');
+      ctx.font = `${o.size}px ${o.font}`; 
+      const width = ctx.measureText(o.text).width + 20;
+      o.w = Math.max(width, 50);
       
-      document.getElementById('zoom-level').textContent = Math.round(App.scale * 100) + '%';
+      if(o.maskId) {
+        const m = App.objects.find(i => i.id === o.maskId);
+        if(m) { m.w = o.w; m.h = o.h; }
+      }
+    }
+    App.isEditing = false;
+    editor.style.display = 'none';
+    renderUI();
+  }
+
+  // --- HELPERS ---
+  function setTool(t) {
+    App.tool = t;
+    document.querySelectorAll('.btn-large').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+    uiCanvas.style.cursor = t==='select'?'default':'crosshair';
+  }
+
+  function updateProp() {
+    if(!App.selectedId) return;
+    const o = App.objects.find(i => i.id === App.selectedId);
+    if(o && o.type === 'text') {
+      o.font = document.getElementById('font-family').value;
+      o.size = parseInt(document.getElementById('font-size').value);
+      o.bold = document.getElementById('btn-bold').classList.contains('active');
       renderUI();
     }
+  }
+  
+  function syncProps(o) {
+    if(o.type !== 'text') return;
+    document.getElementById('font-family').value = o.font;
+    document.getElementById('font-size').value = o.size;
+    if(o.bold) document.getElementById('btn-bold').classList.add('active');
+    else document.getElementById('btn-bold').classList.remove('active');
+  }
 
-    // --- UI RENDERING (The "Adobe" Look) ---
-    function renderUI() {
-      uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+  // --- SAVE ---
+  async function savePDF() {
+    if(!App.pdfLibDoc) return;
+    const doc = App.pdfLibDoc;
+    const page = doc.getPages()[App.pageNum-1];
+    const {height} = page.getSize();
+    
+    // Embed Fonts
+    const helv = await doc.embedFont(PDFLib.StandardFonts.Helvetica);
+    const helvBold = await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    const cour = await doc.embedFont(PDFLib.StandardFonts.Courier);
+    const courBold = await doc.embedFont(PDFLib.StandardFonts.CourierBold);
+    const times = await doc.embedFont(PDFLib.StandardFonts.TimesRoman);
 
-      App.objects.forEach(obj => {
-        // If we are text-editing, hide the canvas text so we don't see double
-        if (App.isEditing && App.selectedId === obj.id) return;
-
-        const x = obj.x * App.scale;
-        const y = obj.y * App.scale;
-        const w = obj.w * App.scale;
-        const h = obj.h * App.scale;
-
-        if (obj.type === 'whiteout') {
-          uiCtx.fillStyle = '#ffffff';
-          uiCtx.fillRect(x, y, w, h);
-        } else if (obj.type === 'image') {
-          uiCtx.drawImage(obj.img, x, y, w, h);
-        } else if (obj.type === 'text') {
-          uiCtx.save();
-          // Font Logic
-          let family = 'Helvetica';
-          if (obj.font === 'BankCourier') family = '"Courier Prime", monospace';
-          if (obj.font === 'Times') family = '"Times New Roman", serif';
-          
-          uiCtx.font = `${obj.bold ? 'bold ' : ''}${obj.size * App.scale}px ${family}`;
-          uiCtx.fillStyle = obj.color;
-          uiCtx.textBaseline = 'top';
-          
-          // Alignment Logic
-          let drawX = x;
-          const textW = uiCtx.measureText(obj.text).width;
-          if(obj.align === 'center') drawX = x + (w - textW)/2;
-          if(obj.align === 'right') drawX = x + (w - textW);
-
-          uiCtx.fillText(obj.text, drawX, y);
-          uiCtx.restore();
-        }
-      });
-
-      // Draw Selection Box
-      if (App.selectedId && !App.isEditing) {
-        const obj = App.objects.find(o => o.id === App.selectedId);
-        if (obj) {
-          const x = obj.x * App.scale, y = obj.y * App.scale;
-          const w = obj.w * App.scale, h = obj.h * App.scale;
-          
-          uiCtx.strokeStyle = '#0066cc';
-          uiCtx.lineWidth = 1.5;
-          uiCtx.setLineDash([4, 2]);
-          uiCtx.strokeRect(x, y, w, h);
-          uiCtx.setLineDash([]);
-          
-          // Handles
-          uiCtx.fillStyle = '#cceeff';
-          uiCtx.strokeStyle = '#0066cc';
-          const handles = [[x,y], [x+w,y], [x,y+h], [x+w,y+h]];
-          handles.forEach(([hx,hy]) => {
-            uiCtx.fillRect(hx-4, hy-4, 8, 8);
-            uiCtx.strokeRect(hx-4, hy-4, 8,
+    for(const o of App.objects) {
+      const y = height - o.y - o.h;
+      
+      if(o.type === 'whiteout') {
+        page.drawRectangle({ x:o.x, y:y, width:o.w, height:o.h, color: PDFLib.rgb(1,1,1) });
+      } else if(o.type === 'text') {
+        let font = helv;
+        if(o.font === 'BankCourier') font = o.bold ? courBold : cour;
+        if(o.font === 'Times') font = times;
+        if(o.font === 'Helvetica' && o.bold) font = helvBold;
+        
+        page.drawText(o.text, {
+          x: o.x,
+          y: height - o.y - (o.size*0.8),
+          size: o.size,
+          font: font,
+          color: PDFLib.rgb(0,0,0)
+        });
+      }
+    }
+    
+    const bytes = await doc.save();
+    const blob = new Blob([bytes], {type:'application/pdf'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'edited_doc.pdf';
+    a.click();
+  }
+</script>
+</body>
+</html>
